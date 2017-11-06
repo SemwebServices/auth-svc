@@ -28,6 +28,13 @@ class Swuser implements Serializable {
     }
 
     static mapping = {
-	    password column: '`password`'
+      table 'sw_user'
+                   id column: 'swu_id'
+             username column: 'swu_user'
+             password column: 'swu_pass'
+	            enabled column: 'swu_enabled'
+	     accountExpired column: 'swu_ac_expired'
+	      accountLocked column: 'swu_locked'
+	    passwordExpired column: 'swu_pw_expired'
     }
 }

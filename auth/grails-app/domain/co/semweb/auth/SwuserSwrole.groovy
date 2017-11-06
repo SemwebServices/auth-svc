@@ -82,6 +82,9 @@ class SwuserSwrole implements Serializable {
 
 	static mapping = {
 		id composite: ['swuser', 'swrole']
+    table 'sw_user_role'
+    swuser column: 'swur_user_fk'
+    swrole column: 'swur_role_fk'
 		version false
 	}
 }

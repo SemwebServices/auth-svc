@@ -18,6 +18,9 @@ class Swrole implements Serializable {
 	}
 
 	static mapping = {
+    table 'sw_role'
 		cache true
+    id column: 'swr_id'
+    authority column: 'swr_authority'
 	}
 }
