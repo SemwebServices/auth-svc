@@ -73,7 +73,9 @@ assets {
 }
 
 tasks.withType(JavaExec).each { task ->
-    System.properties['spring.config.location'] = '/home/ibbo/.grails/a2.yaml'
+    if ( System.properties['spring.config.location'] == null ) {
+      System.properties['spring.config.location'] = '/home/ibbo/.grails/a2.yaml'
+    }
     def props = System.properties
     task.systemProperties props
 }

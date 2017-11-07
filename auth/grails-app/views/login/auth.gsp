@@ -1,3 +1,6 @@
+<%@ page import="org.springframework.security.web.savedrequest.SavedRequest" %>
+<%@ page import="org.springframework.security.web.savedrequest.HttpSessionRequestCache" %>
+
 <g:set var='securityConfig' value='${applicationContext.springSecurityService.securityConfig}'/>
 <html>
 <head>
@@ -43,5 +46,12 @@
     </div>
   </div>
 
+  params:
+  ${params}
+  saved req:
+  <%
+    def r = new HttpSessionRequestCache().getRequest(request, response)
+  %>
+  ${r}
 </body>
 </html>
