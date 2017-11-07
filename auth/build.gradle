@@ -62,7 +62,7 @@ dependencies {
 }
 
 bootRun {
-    jvmArgs('-Dspring.output.ansi.enabled=always')
+    jvmArgs('-Dspring.output.ansi.enabled=always');
     addResources = true
 }
 
@@ -70,4 +70,10 @@ bootRun {
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+tasks.withType(JavaExec).each { task ->
+    System.properties['spring.config.location'] = '/home/ibbo/.grails/a2.yaml'
+    def props = System.properties
+    task.systemProperties props
 }

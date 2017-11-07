@@ -2,8 +2,13 @@ package auth
 
 class BootStrap {
 
-    def init = { servletContext ->
-    }
-    def destroy = {
-    }
+  def grailsApplication
+
+  def init = { servletContext ->
+    log.debug("Auth service init");
+    log.info("Sys id: ${grailsApplication.config.systemId}")
+  }
+
+  def destroy = {
+  }
 }
