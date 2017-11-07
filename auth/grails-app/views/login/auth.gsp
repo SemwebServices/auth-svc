@@ -12,7 +12,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6">
-        		<g:form action="${postUrl ?: '/login/authenticate'}" method="POST" id="loginForm" class="cssform" autocomplete="off">
+        		<g:form controller="login" action="authenticate" method="POST" class="cssform" autocomplete="off">
         			<div class="sign-in">
         				<h2><g:message code='spring.security.ui.login.signin'/></h2>
 
