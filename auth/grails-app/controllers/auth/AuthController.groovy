@@ -24,7 +24,7 @@ class AuthController {
    * This method is secured, so the user will be prompted to log in if not already authenticated.
    */
   @Secured(['ROLE_USER', 'IS_AUTHENTICATED_FULLY'])
-  def index() { 
+  def prompt() { 
     def result = [:]
     log.debug("AuthController::index(${params})");
     result.authProviders = grailsApplication.config.authProviders;
@@ -53,6 +53,8 @@ class AuthController {
    */
   def code() {
     def result = [:]
+    def user_token = null;
+
     log.debug("AuthController::code ${params}");
     // example response:: http://localhost:8080/auth/code?state=f7a30749-6697-4037-9b71-11bd61003729&code=4/.AABMWQrBBQV3lzYpYZmPJ-WWWW7-j6B0ehhZASLCwdB5gENLobRUPfEmfIjRktmxv_Ya46dE3SVA8UIJwQnKzwE&authuser=2&hd=semweb.co&session_state=f8208bc9aa0d91f68a598cdd9751269216fce216..2630&prompt=consent#
 
@@ -83,16 +85,20 @@ class AuthController {
         log.debug("POST Success: ${resp} ${json}")
 
         def user_info = decodeJwt(oidc_cfg.jwks_uri, oidc_cfg.clientId, json.id_token)
+        user_token = json.id_token;
 
         log.debug("User Info: ${user_info}");
       }
     }
 
+    // claim.iss + claim.sub -- issuer + subscriber == a globally unique id
+    redirect(url:"http://localhost:3000/callback#"+user_token);
+
     result
   }
 
 
-  private String createToken(user) {
+  private String createToken(userid) {
 
     // See https://bitbucket.org/b_c/jose4j/wiki/JWT%20Examples
 
@@ -104,13 +110,13 @@ class AuthController {
 
     // Create the Claims, which will be the content of the JWT
     JwtClaims claims = new JwtClaims();
-    claims.setIssuer("CultureEverywhere");  // who creates the token and signs it
-    claims.setAudience("CEUsers"); // to whom the token is intended to be sent
-    claims.setExpirationTimeMinutesInTheFuture(60*15); // time when the token will expire (60*15 minutes from now)
+    claims.setIssuer("semweb.co");  // who creates the token and signs it
+    claims.setAudience("semweb.co"); // to whom the token is intended to be sent
+    claims.setExpirationTimeMinutesInTheFuture(60*60); // time when the token will expire (60*60 minutes from now)
     claims.setGeneratedJwtId(); // a unique identifier for the token
     claims.setIssuedAtToNow();  // when the token was issued/created (now)
     claims.setNotBeforeMinutesInThePast(2); // time before which the token is not yet valid (2 minutes ago)
-    claims.setSubject(user.user.username); // the subject/principal is whom the token is about
+    claims.setSubject(userid); // the subject/principal is whom the token is about
     // claims.setClaim("email","mail@example.com"); // additional claims/attributes about the subject can be added
     // List<String> groups = Arrays.asList("group-one", "other-group", "group-three");
     // claims.setStringListClaim("groups", groups); // multi-valued claims work too and will end up as a JSON array
