@@ -7,6 +7,7 @@ Your grails yaml config file will need to have a section like
 
 authProviders:
   google:
+    type: oidc
     clientId: <<client_id>>
     clientSecret: <<client_secret>>
     discoveryUrl: https://accounts.google.com/.well-known/openid-configuration
