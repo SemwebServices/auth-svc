@@ -7,6 +7,8 @@ import static groovyx.net.http.Method.GET
 import org.jose4j.jwk.*
 import org.jose4j.jwt.*
 import org.jose4j.jws.*
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.resolvers.HttpsJwksVerificationKeyResolver;
 
 
 /**
@@ -79,6 +81,10 @@ class AuthController {
                  body:access_params,
                  requestContentType: 'application/x-www-form-urlencoded; charset=utf-8') { resp, json ->
         log.debug("POST Success: ${resp} ${json}")
+
+        def user_info = decodeJwt(oidc_cfg.jwks_uri, oidc_cfg.clientId, json.id_token)
+
+        log.debug("User Info: ${user_info}");
       }
     }
 
@@ -138,4 +144,22 @@ class AuthController {
     return jwt
   }
 
+  private def decodeJwt(jwks_api, client_id, token) {
+    log.debug("decodeJwt(${jwks_api},...)");
+
+    HttpsJwks httpsJkws = new HttpsJwks(jwks_api);
+
+    HttpsJwksVerificationKeyResolver httpsJwksKeyResolver = new HttpsJwksVerificationKeyResolver(httpsJkws);
+
+    def jwtConsumer = new JwtConsumerBuilder()
+            .setVerificationKeyResolver(httpsJwksKeyResolver)
+            .setExpectedAudience(client_id)
+            .build();
+
+    //  Validate the JWT and process it to the Claims
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+    log.debug("JWT validation succeeded! " + jwtClaims);
+
+    jwtClaims
+  }
 }

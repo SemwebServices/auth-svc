@@ -8,6 +8,7 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
+    <script src="https://use.fontawesome.com/28d4108724.js"></script>
     <asset:stylesheet src="application.css"/>
 
     <g:layoutHead/>
