@@ -9,6 +9,7 @@ import org.jose4j.jwt.*
 import org.jose4j.jws.*
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.keys.resolvers.HttpsJwksVerificationKeyResolver;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 
 /**
@@ -28,7 +29,6 @@ class AuthController {
     def result = [:]
     log.debug("AuthController::index(${params})");
     result.authProviders = grailsApplication.config.authProviders;
-
   }
 
   def oidcAuth() {
@@ -54,8 +54,18 @@ class AuthController {
   def code() {
     def result = [:]
     def user_token = null;
+    def flow = null;
 
-    log.debug("AuthController::code ${params}");
+    // When we arrived at the protected resource, we stashed the original request. Lets see if we
+    // were passed a flow parameter - which will tell us where the caller ultimately wants us to redirect to
+    def r = new HttpSessionRequestCache().getRequest(request, response)
+    if ( r ) {
+      def flow_values = r.getParameterValues('flow')
+      if ( flow_values.length > 0 ) {
+        flow = flow_values[0];
+      }
+    }
+
     // example response:: http://localhost:8080/auth/code?state=f7a30749-6697-4037-9b71-11bd61003729&code=4/.AABMWQrBBQV3lzYpYZmPJ-WWWW7-j6B0ehhZASLCwdB5gENLobRUPfEmfIjRktmxv_Ya46dE3SVA8UIJwQnKzwE&authuser=2&hd=semweb.co&session_state=f8208bc9aa0d91f68a598cdd9751269216fce216..2630&prompt=consent#
 
     // We are now at step 4 from https://developers.google.com/identity/protocols/OpenIDConnect
@@ -87,12 +97,16 @@ class AuthController {
         def user_info = decodeJwt(oidc_cfg.jwks_uri, oidc_cfg.clientId, json.id_token)
         user_token = json.id_token;
 
-        log.debug("User Info: ${user_info}");
       }
     }
 
+    log.debug("After all processing flow=${flow}, user_token:${user_token}");
+
     // claim.iss + claim.sub -- issuer + subscriber == a globally unique id
-    redirect(url:"http://localhost:3000/callback#"+user_token);
+    // redirect(url:"http://localhost:3000/callback#"+user_token);
+    if ( flow ) {
+      redirect(url:flow+'#'+user_token);
+    }
 
     result
   }
