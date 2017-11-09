@@ -10,6 +10,7 @@ import org.jose4j.jws.*
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.keys.resolvers.HttpsJwksVerificationKeyResolver;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import co.semweb.auth.*
 
 
 /**
@@ -20,6 +21,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 class AuthController {
 
    def springSecurityService
+   def publicKeyService
 
   /**
    * This method is secured, so the user will be prompted to log in if not already authenticated.
@@ -97,6 +99,20 @@ class AuthController {
         def user_info = decodeJwt(oidc_cfg.jwks_uri, oidc_cfg.clientId, json.id_token)
         user_token = json.id_token;
 
+        def username = user_info.getIssuer()+":"+user_info.getSubject()
+
+        def usr = Swuser.findByUsername(username) 
+        if ( usr == null ) {
+          usr = new Swuser(username:username, 
+                           password:java.util.UUID.randomUUID(),
+                           issuer:user_info.getIssuer(),
+                           issuerId:user_info.getSubject(),
+                           email:user_info.getClaimsMap().get('email')).save(flush:true, failOnError:true);
+
+          SwuserSwrole.create(usr, Swrole.findByAuthority('ROLE_USER'), true);
+        }
+
+        user_token = createToken(usr);
       }
     }
 
@@ -112,7 +128,7 @@ class AuthController {
   }
 
 
-  private String createToken(userid) {
+  private String createToken(user) {
 
     // See https://bitbucket.org/b_c/jose4j/wiki/JWT%20Examples
 
@@ -130,8 +146,8 @@ class AuthController {
     claims.setGeneratedJwtId(); // a unique identifier for the token
     claims.setIssuedAtToNow();  // when the token was issued/created (now)
     claims.setNotBeforeMinutesInThePast(2); // time before which the token is not yet valid (2 minutes ago)
-    claims.setSubject(userid); // the subject/principal is whom the token is about
-    // claims.setClaim("email","mail@example.com"); // additional claims/attributes about the subject can be added
+    claims.setSubject(user.id.toString()); // the subject/principal is whom the token is about
+    claims.setClaim("email",user.email); // additional claims/attributes about the subject can be added
     // List<String> groups = Arrays.asList("group-one", "other-group", "group-three");
     // claims.setStringListClaim("groups", groups); // multi-valued claims work too and will end up as a JSON array
 

@@ -13,10 +13,13 @@ class Swuser implements Serializable {
 
     String username
     String password
+    String email
     boolean enabled = true
     boolean accountExpired
     boolean accountLocked
     boolean passwordExpired
+    String issuer
+    String issuerId
 
     Set<Swrole> getAuthorities() {
         (SwuserSwrole.findAllBySwuser(this) as List<SwuserSwrole>)*.swrole as Set<Swrole>
@@ -25,6 +28,9 @@ class Swuser implements Serializable {
     static constraints = {
         password nullable: false, blank: false, password: true
         username nullable: false, blank: false, unique: true
+           email nullable: true, blank: false, unique: false
+          issuer nullable: true, blank: false, unique: false
+        issuerId nullable: true, blank: false, unique: true
     }
 
     static mapping = {
@@ -32,6 +38,8 @@ class Swuser implements Serializable {
                    id column: 'swu_id'
              username column: 'swu_user'
              password column: 'swu_pass'
+               issuer column: 'swu_issuer'
+             issuerId column: 'swu_issuer_id'
 	            enabled column: 'swu_enabled'
 	     accountExpired column: 'swu_ac_expired'
 	      accountLocked column: 'swu_locked'
