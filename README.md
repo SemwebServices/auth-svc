@@ -3,6 +3,18 @@
 
 # Config
 
+## Database
+
+become the postgres OS user and start the postgres client
+
+    psql
+
+    postgres=# create database semweb;
+    postgres=# CREATE USER semweb WITH PASSWORD '...';
+    postgres=# GRANT ALL PRIVILEGES ON DATABASE semweb to semweb;
+
+
+
 ## Pointing at your local config file
 
 THe app needs a config file with details of local certs etc. Normally (tomcat) this is done by creating a
