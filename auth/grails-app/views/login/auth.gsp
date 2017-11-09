@@ -40,7 +40,7 @@
         <div class="sign-in">
           <h2><g:message code='spring.security.ui.login.oauthsignin'/></h2>
           <g:each in="${grailsApplication.config.authProviders}" var="apk,ap">
-            <a class="${ap.btnClasses}" href="${ap.authorization_endpoint}?client_id=${ap.clientId}&response_type=code&scope=openid%20email&redirect_uri=http://localhost:8080/auth/code/${apk}&state=${java.util.UUID.randomUUID()}&nonce=${java.util.UUID.randomUUID()}">${ap.name}</a>
+            <a class="${ap.btnClasses}" href="${ap.authorization_endpoint}?client_id=${ap.clientId}&response_type=code&scope=openid%20email&redirect_uri=${grailsApplication.config.appbase}auth/code/${apk}&state=${java.util.UUID.randomUUID()}&nonce=${java.util.UUID.randomUUID()}">${ap.name}</a>
           </g:each>
       </div>
     </div>

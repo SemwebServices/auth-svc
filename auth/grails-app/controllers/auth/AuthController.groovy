@@ -81,11 +81,13 @@ class AuthController {
 
       log.debug("About to call post on ${oidc_cfg.token_endpoint} / ${tokenUri.scheme}:${tokenUri.host}:${tokenUri.path} -- to validate token")
 
+      def redirect_uri = ( grailsApplication.config.appbase ?: 'http://localhost:8080/' ) + 'auth/code/'+params.provider;
+
       def access_params = [
         code: params.code,
         client_id: oidc_cfg.clientId,
         client_secret: oidc_cfg.clientSecret,
-        redirect_uri: 'http://localhost:8080/auth/code/'+params.provider,
+        redirect_uri: redirect_uri,
         grant_type: 'authorization_code'
       ];
 
