@@ -41,7 +41,7 @@ class AuthController {
       def nonce=java.util.UUID.randomUUID();
       redirect(url:"${oidc_cfg.authorization_endpoint}?client_id=${oidc_cfg.clientId}"+
                             '&response_type=code'+
-                            '&scope=openid%20email'+
+                            '&scope=openid%20email%20profile'+
                             "&redirect_uri=http://localhost:8080/auth/code"+
                             "&state=${state}"+
                             "&nonce=${nonce}")
@@ -104,12 +104,17 @@ class AuthController {
         def username = user_info.getIssuer()+":"+user_info.getSubject()
 
         def usr = Swuser.findByUsername(username) 
+
         if ( usr == null ) {
+
+          def email = user_info.getClaimsMap().get('email')
+          def name = user_info.getClaimsMap().get('name')
           usr = new Swuser(username:username, 
                            password:java.util.UUID.randomUUID(),
+                           displayName: name ?: email,
                            issuer:user_info.getIssuer(),
                            issuerId:user_info.getSubject(),
-                           email:user_info.getClaimsMap().get('email')).save(flush:true, failOnError:true);
+                           email:email).save(flush:true, failOnError:true);
 
           SwuserSwrole.create(usr, Swrole.findByAuthority('ROLE_USER'), true);
         }
@@ -150,6 +155,7 @@ class AuthController {
     claims.setNotBeforeMinutesInThePast(2); // time before which the token is not yet valid (2 minutes ago)
     claims.setSubject(user.id.toString()); // the subject/principal is whom the token is about
     claims.setClaim("email",user.email); // additional claims/attributes about the subject can be added
+    claims.setClaim("displayName",user.email); // additional claims/attributes about the subject can be added
     // List<String> groups = Arrays.asList("group-one", "other-group", "group-three");
     // claims.setStringListClaim("groups", groups); // multi-valued claims work too and will end up as a JSON array
 

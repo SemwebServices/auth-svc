@@ -14,6 +14,7 @@ class Swuser implements Serializable {
     String username
     String password
     String email
+    String displayName
     boolean enabled = true
     boolean accountExpired
     boolean accountLocked
@@ -26,11 +27,12 @@ class Swuser implements Serializable {
     }
 
     static constraints = {
-        password nullable: false, blank: false, password: true
-        username nullable: false, blank: false, unique: true
-           email nullable: true, blank: false, unique: false
-          issuer nullable: true, blank: false, unique: false
-        issuerId nullable: true, blank: false, unique: true
+         password nullable: false, blank: false, password: true
+         username nullable: false, blank: false, unique: true
+            email nullable: true, blank: false, unique: false
+           issuer nullable: true, blank: false, unique: false
+         issuerId nullable: true, blank: false, unique: true
+      displayName nullable: true, blank: false, unique: true
     }
 
     static mapping = {
@@ -38,6 +40,7 @@ class Swuser implements Serializable {
                    id column: 'swu_id'
              username column: 'swu_user'
              password column: 'swu_pass'
+          displayName column: 'swu_display_name'
                issuer column: 'swu_issuer'
              issuerId column: 'swu_issuer_id'
 	            enabled column: 'swu_enabled'
