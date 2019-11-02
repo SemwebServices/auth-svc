@@ -6,17 +6,23 @@ buildscript {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "org.grails.plugins:hibernate5:7.0.0"
         classpath "org.grails.plugins:views-gradle:2.0.0.BUILD-SNAPSHOT"
+        classpath 'gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1'
     }
 }
 
+// https://spring.io/guides/gs/spring-boot-docker/
+// https://github.com/palantir/gradle-docker/releases
+// https://gist.github.com/ianibo/636b89252430baa28320474c9b390a9a
+
 version "0.1"
-group "authsvc"
+group "semweb"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"war"
 apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.plugins.views-json"
+apply plugin: 'com.palantir.docker'
 
 repositories {
     maven { url "https://repo.grails.org/grails/core" }
@@ -75,3 +81,12 @@ bootRun {
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
+
+docker {
+  // name 'hub.docker.com/knowint/resource-sharing-message-services:latest'
+  name 'semweb/authsvc:latest'
+  files war.archivePath
+  buildArgs(['JAR_FILE':"${war.archiveName}"])
+  dockerfile project.file('src/main/docker/Dockerfile')
+}
+
